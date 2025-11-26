@@ -94,6 +94,11 @@ Fork the repository to create your own templates or edit the existing templates.
 
 Create GitHub gists with your cloud-init content. Gists are perfect for quick sharing and provide version control automatically.
 
+## Hot Aisle API Reference
+
+For the complete Hot Aisle API documentation and Swagger reference:
+<https://admin.hotaisle.app/api/docs/>
+
 ## Cloud-Init Reference
 
 For complete cloud-init documentation and reference:
