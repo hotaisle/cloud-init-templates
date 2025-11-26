@@ -1,0 +1,23 @@
+#cloud-config
+# Simple cloud-init to run vLLM Docker container
+# This will start the vLLM service automatically on first boot
+
+runcmd:
+  - |
+    echo "Starting vLLM Docker container..."
+    docker run -d \
+      --name vllm \
+      --network=host \
+      --group-add=video \
+      --ipc=host \
+      --cap-add=SYS_PTRACE \
+      --security-opt seccomp=unconfined \
+      --privileged \
+      --device /dev/kfd \
+      --device /dev/dri \
+      --restart=always \
+      rocm/vllm:latest \
+      vllm serve Qwen/Qwen2-7B-Instruct
+  - |
+    echo "vLLM container started. Check status with: docker logs vllm"
+    echo "vLLM should be available shortly. GPU access and networking are configured for host mode."
