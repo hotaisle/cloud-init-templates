@@ -55,6 +55,33 @@ curl http://localhost:8000/v1/completions \
   }'
 ```
 
+## Important Note on VM Availability
+
+When provisioning a VM with cloud-init, the VM will reboot and may not be available over SSH until cloud-init completes. This is different from VMs provisioned without cloud-init, which are available immediately.
+
+VMs with cloud-init typically take 1-2 minutes to become fully available as cloud-init runs on first boot. During this time, the VM will be rebooting and may not respond to SSH attempts.
+
+## Accessing vLLM
+
+VMs have ufw firewall enabled (port 22 only). Access vLLM via SSH:
+
+```bash
+# SSH to VM
+ssh hotaisle@<vm-ip>
+
+# Test vLLM API from inside VM
+curl http://localhost:8000/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "Qwen/Qwen2-7B-Instruct",
+    "prompt": "Write a hatiku about artificial intelligence",
+    "max_tokens": 128,
+    "top_p": 0.95,
+    "top_k": 20,
+    "temperature": 0.8
+  }'
+```
+
 ## Creating Your Own Cloud-Init Files
 
 All you need is a URL to a cloud-init user-data file. Here are some options for hosting your files:
