@@ -1,0 +1,25 @@
+[Unit]
+Description=vLLM Service for Kimi-K2.5
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/srv/vllm-k2.5
+Environment="PATH=/srv/vllm-k2.5/.venv/bin:${PATH}"
+Environment="ROCM_PATH=/opt/rocm"
+Environment="HF_ENDPOINT=http://hf-cache.hotaisle.app:8090"
+Restart=on-failure
+RestartSec=10
+ExecStart=/srv/vllm-k2.5/.venv/bin/python \
+  -m vllm serve moonshotai/Kimi-K2.5 \
+  --tensor-parallel-size 4 \
+  --mm-encoder-tp-mode data \
+  --enable-auto-tool-choice \
+  --tool-call-parser kimi_k2 \
+  --reasoning-parser kimi_k2 \
+  --trust-remote-code \
+  --port 8000
+
+[Install]
+WantedBy=multi-user.target
