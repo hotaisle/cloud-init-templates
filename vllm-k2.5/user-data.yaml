@@ -4,27 +4,33 @@
 package_update: true
 package_upgrade: true
 
+users:
+  - name: vllm
+    system: true
+    shell: /bin/bash
+    home: /home/vllm
+    groups: video,render
+
 packages:
 
 runcmd:
   - |
-    echo "Installing uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "Installing uv for vllm user..."
+    sudo -u vllm curl -LsSf https://astral.sh/uv/install.sh | sh
   - |
-    echo "Creating venv in /srv/vllm-k2.5..."
-    export UV_WORKING_DIR=/srv/vllm-k2.5
+    echo "Creating venv in /home/vllm/vllm-k2.5..."
+    export UV_WORKING_DIR=/home/vllm/vllm-k2.5
     export ROCM_PATH=/opt/rocm
-    mkdir $UV_WORKING_DIR
-    uv venv --python 3.12 --seed
-    source $UV_WORKING_DIR/.venv/activate
+    sudo -u vllm mkdir $UV_WORKING_DIR
+    sudo -u vllm /home/vllm/.cargo/bin/uv venv --python 3.12 --seed
     echo "Installing vLLM with ROCm wheels..."
-    uv pip install vllm --extra-index-url https://wheels.vllm.ai/rocm/0.15.0/rocm700
+    sudo -u vllm /home/vllm/.cargo/bin/uv pip install vllm --extra-index-url https://wheels.vllm.ai/rocm/0.15.0/rocm700
     echo "Downloading fused_moe config files..."
     CONFIG_DIR="$UV_WORKING_DIR/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/configs"
-    mkdir -p "$CONFIG_DIR"
-    curl -L -o "$CONFIG_DIR/E=384,N=256,device_name=AMD_Instinct_MI300X,dtype=int4_w4a16.json" \
+    sudo -u vllm mkdir -p "$CONFIG_DIR"
+    sudo -u vllm curl -L -o "$CONFIG_DIR/E=384,N=256,device_name=AMD_Instinct_MI300X,dtype=int4_w4a16.json" \
       https://raw.githubusercontent.com/hotaisle/cloud-init-templates/k2.5/vllm-k2.5/E=384,N=256,device_name=AMD_Instinct_MI300X,dtype=int4_w4a16.json
-    curl -L -o "$CONFIG_DIR/E=384,N=512,device_name=AMD_Instinct_MI300X,dtype=int4_w4a16.json" \
+    sudo -u vllm curl -L -o "$CONFIG_DIR/E=384,N=512,device_name=AMD_Instinct_MI300X,dtype=int4_w4a16.json" \
       https://raw.githubusercontent.com/hotaisle/cloud-init-templates/k2.5/vllm-k2.5/E=384,N=512,device_name=AMD_Instinct_MI300X,dtype=int4_w4a16.json
     echo "Downloading systemd unit file..."
     curl -L -o /etc/systemd/system/vllm-k2.5.service \
